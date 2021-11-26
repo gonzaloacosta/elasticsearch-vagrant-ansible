@@ -1,0 +1,48 @@
+---
+- name: Include variables
+  include_vars:
+    file: ../../vars.yml
+
+- name: Download Kibana Deb Package
+  get_url:
+    url: "{{ kibana_url }}{{ kibana_version }}-amd64.deb"
+    dest: "{{ download }}"
+  when: ansible_facts['distribution']=="Ubuntu"
+
+- name: Download Kibana Yum Package
+  get_url:
+    url: "{{ kibana_url }}{{ kibana_version }}-x86_64.rpm"
+    dest: "{{ download }}"
+  when: ansible_facts['distribution']=="CentOS"
+
+- name: Install Kibana Deb Package
+  become: yes
+  apt:
+    deb: "{{ download }}/{{ kibana_version }}-amd64.deb"
+  when: ansible_facts['distribution']=="Ubuntu"
+
+- name: Install Kibana Yum Package
+  become: yes
+  yum:
+    name: "{{ download }}/{{ kibana_version }}-x86_64.rpm"
+  when: ansible_facts['distribution']=="CentOS"
+
+- name: Update Kibana Config (IP Address)
+  become: yes
+  lineinfile:
+    destfile: /etc/kibana/kibana.yml
+    regexp: 'server.host'
+    line: 'server.host: "0.0.0.0"'
+
+- name: Update Kibana Config (Kibana URL)
+  become: yes
+  lineinfile:
+    destfile: /etc/kibana/kibana.yml
+    regexp: 'elasticsearch.hosts'
+    line: 'elasticsearch.hosts: ["http://192.168.28.75:9200"]'
+
+- name: Start Kibana Service
+  become: yes
+  service:
+    name: kibana
+    state: started
