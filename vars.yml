@@ -20,16 +20,16 @@ elastic_version: elasticsearch-7.9.0
 elastic_yaml: /etc/elasticsearch/elasticsearch.yml
 
 # Elasticsearch clustername
-elastic_cluster_name: quark-systems
+elastic_cluster_name: quark-search
 
 # Elastic port (e.g. 9200)
 elastic_port: 9200
 
 # Elastic Discovery Seeds
-elastic_discovery_seeds: '"elk1", "elk2", "elk3"'
+elastic_discovery_seeds: '"esd1", "esd2", "esd3"'
 
 # Elastic Initial Master Nodes:
-elastic_master_nodes: '"elk1", "elk2", "elk3"'
+elastic_master_nodes: '"esd1", "esd2", "esd3"'
 
 
 # KIBANA

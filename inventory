@@ -5,31 +5,25 @@ kibana
 
 [all:vars]
 ansible_ssh_user=vagrant
-ansible_ssh_private_key_file=~/.vagrant.d/insecure_private_key
+#ansible_ssh_private_key_file=~/.vagrant.d/insecure_private_key
 ansible_ssh_port=22
 
 [elastic:children]
-elastic_nodes
-kibana
+es_data
+es_master
 
-[elastic_nodes]
-elk1 ansible_ssh_host=192.168.28.71
-elk2 ansible_ssh_host=192.168.28.72
-elk3 ansible_ssh_host=192.168.28.73
-#elk4 ansible_ssh_host=192.168.28.74
+[es_data]
+esd1 es_node_name=esd1 ansible_ssh_host=192.168.28.71 ansible_ssh_private_key_file=.vagrant/machines/esd1/virtualbox/private_key
+esd2 es_node_name=esd2 ansible_ssh_host=192.168.28.72 ansible_ssh_private_key_file=.vagrant/machines/esd2/virtualbox/private_key
+esd3 es_node_name=esd3 ansible_ssh_host=192.168.28.73 ansible_ssh_private_key_file=.vagrant/machines/esd3/virtualbox/private_key
+
+[es_master]
+esm1 es_node_name=esm1 ansible_ssh_host=192.168.28.74 ansible_ssh_private_key_file=.vagrant/machines/esm1/virtualbox/private_key
+esm2 es_node_name=esm2 ansible_ssh_host=192.168.28.75 ansible_ssh_private_key_file=.vagrant/machines/esm2/virtualbox/private_key
+esm3 es_node_name=esm3 ansible_ssh_host=192.168.28.76 ansible_ssh_private_key_file=.vagrant/machines/esm3/virtualbox/private_key
 
 [kibana]
-elk5 ansible_ssh_host=192.168.28.75
+kb ansible_ssh_host=192.168.28.77 ansible_ssh_private_key_file=.vagrant/machines/kb/virtualbox/private_key
 
-#[elastic_master]
-#elk1 ansible_ssh_host=192.168.28.71
-#elk4 ansible_ssh_host=192.168.28.74
-#
-#[elastic_datanode]
-#elk5 ansible_ssh_host=192.168.28.75
-#
-#[kibana]
-#elk2 ansible_ssh_host=192.168.28.72
-#
 #[logstash]
 #elk3 ansible_ssh_host=192.168.28.73

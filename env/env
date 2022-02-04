@@ -1,0 +1,5 @@
+export es="http://192.168.28.71:9200"
+export es_ip=192.168.28.71
+export es_port=9200
+export kb_ip=192.168.28.77
+export kb_port=5601

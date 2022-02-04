@@ -1,0 +1,233 @@
+GET _cat/indices/camv2*
+
+GET _cat/shards/camv2*
+
+# Health
+##############################################
+GET _cat/health
+GET _cat/nodes?v
+GET _cat/allocation?v
+GET _cat/indices/quark-countries*
+GET _cat/shards/quark-*
+
+GET _cluster/state
+
+
+# Rolling Restart
+##############################################
+
+# green
+
+GET _cat/health
+
+GET _cat/nodes
+
+PUT _cluster/settings
+{
+  "persistent": {
+    "cluster.routing.allocation.enable": "primaries"
+  }
+}
+
+POST _flush/synced
+
+# yellow
+
+# sudo systemctl restart elasticsearch
+# sudo systemctl status elasticsearch
+
+GET _cat/nodes
+
+PUT _cluster/settings
+{
+  "persistent": {
+    "cluster.routing.allocation.enable": null
+  }
+}
+
+# waiting green and repeate
+
+# Stats
+##############################################
+GET _nodes/stats
+
+GET _cat/indices/quark-logging-search
+
+GET quark-logging-search/_search
+
+PUT quark-logging-search
+
+# Search
+##############################################
+POST quark-logging-search/_doc
+{ 
+  "first_name": "Lila",
+  "last_name": "Acosta"
+}
+
+# Create Indices
+##############################################
+PUT /quark-logs-2022-01
+{
+  "aliases": {
+    "this_month": {}
+  },
+  "settings": {
+    "number_of_shards": 2,
+    "number_of_replicas": 1
+  }
+}
+
+# Create the logs-02 index
+
+PUT /quark-logs-2021-12
+{
+  "aliases": {
+    "last_month": {}
+  },
+  "settings": {
+    "number_of_shards": 2,
+    "number_of_replicas": 1
+  }
+}
+
+# Create index yesterday
+PUT /quark-countries-2022-01-29
+{
+  "aliases": {
+    "yesterday": {}
+  },
+  "settings": {
+    "number_of_shards": 10,
+    "number_of_replicas": 1
+  }
+}
+
+PUT /quark-states-2022-01-29
+{
+  "aliases": {
+    "yesterday": {}
+  },
+  "settings": {
+    "number_of_shards": 10,
+    "number_of_replicas": 1
+  }
+}
+
+
+PUT /quark-cities-2022-01-29
+{
+  "aliases": {
+    "yesterday": {}
+  },
+  "settings": {
+    "number_of_shards": 10,
+    "number_of_replicas": 1
+  }
+}
+
+
+# Create index today
+PUT /quark-countries-2022-01-30
+{
+  "aliases": {
+    "today": {}
+  },
+  "settings": {
+    "number_of_shards": 10,
+    "number_of_replicas": 1
+  }
+}
+
+PUT /quark-states-2022-01-30
+{
+  "aliases": {
+    "today": {}
+  },
+  "settings": {
+    "number_of_shards": 10,
+    "number_of_replicas": 1
+  }
+}
+
+
+PUT /quark-customer-age
+{
+  "aliases": {
+    "today": {}
+  },
+  "settings": {
+    "number_of_shards": 5,
+    "number_of_replicas": 1
+  }
+}
+
+
+# Delete index
+###################################################
+DELETE /quark-countries-2022-01-29
+DELETE /quark-countries-2022-01-30
+DELETE /quark-cities-2022-01-29
+DELETE /quark-cities-2022-01-30
+DELETE /quark-states-2022-01-29
+DELETE /quark-states-2022-01-30
+
+# List
+##############################################################
+GET _cat/indices/quark-countries-2022-01-*?v
+
+# Search
+##############################################################
+GET quark-countries-2022-01-25/_search
+
+
+# Update indice configuration
+#############################################################
+
+PUT /quark-countries-2022-01-30/_settings
+{
+  "index" : {
+    "number_of_replicas" : 1
+  }
+}
+
+# Health
+#############################################################
+GET _cat/health
+GET _cat/nodes?v
+GET _cat/allocation?v
+GET _cat/indices/quark-countries*
+GET _cat/shards/quark-countries-2022-01-30
+
+
+# Clean shard allocation
+##############################################################
+PUT _cluster/settings
+{
+  "persistent" : {
+    "cluster.routing.allocation.exclude._ip" : "192.168.28.74, 192.168.28.75"
+  }
+}
+
+PUT _cluster/settings
+{
+  "persistent" : {
+    "cluster.routing.allocation.exclude._ip" : ""
+  }
+}
+
+PUT _cluster/settings
+{
+  "persistent" : {
+    "cluster.routing.allocation.include._ip" : "192.168.28.74"
+  }
+}
+
+
+GET _cluster/settings
+
+
+GET _cat/shards/quark*
+
+GET _cat/tasks
+

@@ -34,9 +34,9 @@
        state: present
       when: ansible_facts['distribution']=="CentOS"
 
-- hosts: all
-  roles:
-    - hosts_update_for_testing
+#- hosts: all
+#  roles:
+#    - hosts_update_for_testing
     
 - hosts: elastic  
   roles:

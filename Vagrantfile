@@ -2,42 +2,63 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-   config.vm.box = "centos/7"
-   
-   config.ssh.insert_key = false
-   
-   config.vm.synced_folder ".","/vagrant", disabled: true
 
-   config.vm.provider:virtualbox do |v|
+  config.vm.box = "centos/7"
+  config.ssh.insert_key = true
+  config.vm.synced_folder ".","/vagrant", disabled: true
+
+  config.vm.provider:virtualbox do |v|
     v.memory = 2048
-    v.cpus = 1
+    v.cpus = 2
     v.linked_clone = true
-   end
+  end
 
-   config.vm.define "elk1" do |elk|
-    elk.vm.hostname = "elk1.test"
+  config.vm.define "esd1" do |elk|
+    elk.vm.hostname = "esd1.test"
     elk.vm.network:private_network, ip:"192.168.28.71"
-   end
+    elk.vm.provider :virtualbox do |v|
+      v.memory = 4096
+      v.cpus = 2
+    end
+  end
 
-   config.vm.define "elk2" do |elk|
-    elk.vm.hostname = "elk2.test"
+  config.vm.define "esd2" do |elk|
+    elk.vm.hostname = "esd.test"
     elk.vm.network:private_network, ip:"192.168.28.72"
-   end
+    elk.vm.provider :virtualbox do |v|
+      v.memory = 4096
+      v.cpus = 2
+    end 
+  end
 
-   config.vm.define "elk3" do |elk|
-    elk.vm.hostname = "elk3.test"
+  config.vm.define "esd3" do |elk|
+    elk.vm.hostname = "esd3.test"
     elk.vm.network:private_network, ip:"192.168.28.73"
-   end
+    elk.vm.provider :virtualbox do |v|
+      v.memory = 4096
+      v.cpus = 2
+    end
+  end
 
-   config.vm.define "elk4" do |elk|
-    elk.vm.hostname = "elk4.test"
+  config.vm.define "esm1" do |elk|
+    elk.vm.hostname = "esm1.test"
     elk.vm.network:private_network, ip:"192.168.28.74"
-   end
+  end
 
-   config.vm.define "elk5" do |elk|
-    elk.vm.hostname = "elk5.test"
+  config.vm.define "esm2" do |elk|
+    elk.vm.hostname = "esm2.test"
     elk.vm.network:private_network, ip:"192.168.28.75"
+  end
+
+  config.vm.define "esm3" do |elk|
+    elk.vm.hostname = "esm3.test"
+    elk.vm.network:private_network, ip:"192.168.28.76"
+  end
+
+  config.vm.define "kb" do |elk|
+    elk.vm.hostname = "kb.test"
+    elk.vm.network:private_network, ip:"192.168.28.77"
     elk.vm.network:forwarded_port, guest:5601, host: 5601
-   end
- 
+  end
+
 end

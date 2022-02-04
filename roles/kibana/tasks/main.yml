@@ -39,7 +39,7 @@
   lineinfile:
     destfile: /etc/kibana/kibana.yml
     regexp: 'elasticsearch.hosts'
-    line: 'elasticsearch.hosts: ["http://192.168.28.75:9200"]'
+    line: 'elasticsearch.hosts: ["http://192.168.28.77:9200"]'
 
 - name: Start Kibana Service
   become: yes

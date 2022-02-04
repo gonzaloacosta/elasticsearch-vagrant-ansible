@@ -11,9 +11,10 @@
     block: |
       {{ item.ip }} {{ item.name }}
   loop:
-    - { name: elk1, ip: 192.168.28.71 }
-    - { name: elk2, ip: 192.168.28.72 }
-    - { name: elk3, ip: 192.168.28.73 }
-    - { name: elk4, ip: 192.168.28.74 }
-    - { name: elk5, ip: 192.168.28.75 }
+    - { name: esd1, ip: 192.168.28.71 }
+    - { name: esd2, ip: 192.168.28.72 }
+    - { name: esd3, ip: 192.168.28.73 }
+    - { name: esm1, ip: 192.168.28.74 }
+    - { name: esm2, ip: 192.168.28.75 }
+    - { name: esm3, ip: 192.168.28.76 }
 
