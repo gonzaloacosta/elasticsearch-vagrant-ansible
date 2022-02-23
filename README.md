@@ -32,4 +32,9 @@ curl http://192.168.28.71:9200/_cat/health
 
 Take time to deploy all the environment.
 
+## Enable TLS
+
+- [Setting up TLS on a cluster](https://www.elastic.co/guide/en/elasticsearch/reference/7.5/ssl-tls.html)
+- [Encrypting communication](https://www.elastic.co/guide/en/elasticsearch/reference/7.5/configuring-tls.html#tls-transport)
+
 

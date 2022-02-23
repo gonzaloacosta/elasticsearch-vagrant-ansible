@@ -1,0 +1,38 @@
+# Elasticsearch
+cluster.name: quark-search
+node.name: esd1
+
+# Storage
+path.data: /var/lib/elasticsearch
+path.logs: /var/log/elasticsearch
+
+# Networking
+network.host: 192.168.28.71
+http.port: 9200
+
+# Masters
+discovery.seed_hosts: ['192.168.28.71', '192.168.28.72', '192.168.28.73']
+cluster.initial_master_nodes: ['192.168.28.71', '192.168.28.72', '192.168.28.73']
+
+#discovery.seed_hosts: ['192.168.28.74', '192.168.28.75', '192.168.28.76']
+#cluster.initial_master_nodes: ['192.168.28.74', '192.168.28.75', '192.168.28.76']
+
+#discovery.seed_hosts: ['192.168.28.71', '192.168.28.72', '192.168.28.73', '192.168.28.74','192.168.28.75', '192.168.28.76']
+#cluster.initial_master_nodes: ['192.168.28.71', '192.168.28.72', '192.168.28.73', '192.168.28.74','192.168.28.75', '192.168.28.76']
+
+# Roles
+node.master: true
+node.data: true
+node.ingest: true
+
+# TLS between nodes
+xpack.security.transport.ssl.enabled: true
+xpack.security.transport.ssl.verification_mode: certificate
+xpack.security.transport.ssl.keystore.path: /etc/elasticsearch/certs/node-esd1.p12
+xpack.security.transport.ssl.truststore.path: /etc/elasticsearch/certs/node-esd1.p12
+
+# TLS for clients
+xpack.security.http.ssl.enabled: true
+xpack.security.http.ssl.keystore.path: /etc/elasticsearch/certs/http-esd1.p12
+xpack.security.http.ssl.truststore.path: /etc/elasticsearch/certs/http-esd1.p12
+

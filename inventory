@@ -16,6 +16,8 @@ es_master
 esd1 es_node_name=esd1 ansible_ssh_host=192.168.28.71 ansible_ssh_private_key_file=.vagrant/machines/esd1/virtualbox/private_key
 esd2 es_node_name=esd2 ansible_ssh_host=192.168.28.72 ansible_ssh_private_key_file=.vagrant/machines/esd2/virtualbox/private_key
 esd3 es_node_name=esd3 ansible_ssh_host=192.168.28.73 ansible_ssh_private_key_file=.vagrant/machines/esd3/virtualbox/private_key
+esd4 es_node_name=esd4 ansible_ssh_host=192.168.28.78 ansible_ssh_private_key_file=.vagrant/machines/esd4/virtualbox/private_key
+esd5 es_node_name=esd5 ansible_ssh_host=192.168.28.79 ansible_ssh_private_key_file=.vagrant/machines/esd5/virtualbox/private_key
 
 [es_master]
 esm1 es_node_name=esm1 ansible_ssh_host=192.168.28.74 ansible_ssh_private_key_file=.vagrant/machines/esm1/virtualbox/private_key

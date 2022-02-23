@@ -10,7 +10,7 @@ import json
 #countries_index = "quark-countries-2022-01-25"
 countries_index = "quark-countries-2022-01-29"
 dataset_path = "../datasets/countries.json"
-es_hosts=['http://192.168.28.71:9200', 'http://192.168.28.72:9200', 'http://192.168.28.73:9200']
+es_hosts=['https://192.168.28.71:9200', 'https://192.168.28.72:9200', 'https://192.168.28.73:9200']
 search_capital="Buenos Aires"
 start_time = time.time()
 seconds = 3000

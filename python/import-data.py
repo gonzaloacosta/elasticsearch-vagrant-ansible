@@ -1,16 +1,21 @@
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers
 from elasticsearch_dsl import connections
+from elasticsearch import RequestsHttpConnection
 from elasticsearch_dsl import Search
+from ssl import create_default_context
+import urllib3
+
 import time
 import pandas as pd
 
 import json
 
+urllib3.disable_warnings()
 #countries_index = "quark-countries-2022-01-25"
 countries_index = "quark-countries-2022-01-30"
 dataset_path = "../datasets/countries.json"
-es_hosts=['http://192.168.28.71:9200', 'http://192.168.28.72:9200', 'http://192.168.28.73:9200']
+es_hosts=['192.168.28.71', '192.168.28.72', '192.168.28.73']
 search_capital="Buenos Aires"
 start_time = time.time()
 seconds = 3000
@@ -46,7 +51,16 @@ df = pd.DataFrame(data, columns = [
 
 print("Open Elasticsearch connection to host: {}".format(es_hosts))
 
-es_client = connections.create_connection(hosts=es_hosts)
+context = create_default_context(cafile="../files/ca.crt")
+es_client = connections.create_connection(
+    hosts=es_hosts,
+    scheme="https",
+    port=9200,
+    ssl_context=context,
+    connection_class=RequestsHttpConnection,
+    se_ssl=True, 
+    verify_certs=False
+)
 
 def doc_generator(df):
     df_iter = df.iterrows()

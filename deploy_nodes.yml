@@ -1,0 +1,175 @@
+---
+- hosts: all
+  gather_facts: yes
+
+  pre_tasks:
+    - name: update yum cache if needed
+      become: yes
+      yum:
+        update_cache: yes
+
+  vars:
+    es_version: 7.11.1-1
+    #es_device_path: /dev/nvme1n1
+    #es_data_path: /data
+    #es_jvm_heap: 32G
+    es_transport_ssl_enabled: false
+    es_transport_ssl_keystore_path: certs/http.p12
+    es_http_ssl_enabled: false
+    es_http_ssl_keystore_path: certs/elastic-certificates.p12
+    es_xpack_security_enabled: false
+    es_cluster_name: quark-search
+    es_path_data: /data/elasticsearch-data
+    es_path_logs: /var/log/elasticsearch
+    es_network_host: 0.0.0.0
+    es_http_port: 9200
+    ese_discovery_seed_hosts: ["192.168.28.74","192.168.28.75","192.168.28.76"]
+    es_cluster_initial_master_nodes: ["192.168.28.74","192.168.28.75","192.168.28.76"]
+    confirm_node_reboot: false
+
+  tasks:
+    - name: Install base packages
+      become: yes
+      yum:
+        name: ['vim', 'nc', 'curl', 'nmap', 'xfsprogs', 'epel-release', 'htop']
+        state: present
+
+    - name: Elasticsearch repository
+      yum_repository:
+        name: elastic
+        description: Elasticsearch repository for 7.x packages
+        baseurl: https://artifacts.elastic.co/packages/7.x/yum
+        gpgcheck:
+        repo_gpgcheck: yes
+        gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+
+    - name: Add the repository keys
+      rpm_key:
+        key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+        state: present
+
+    - name: Install elasticsearch
+      yum:
+        name: elasticsearch-{{ es_version }}.x86_64
+
+    - name: Install elasticsearch plugin s3
+      shell:
+        cmd: /usr/share/elasticsearch/bin/elasticsearch-plugin install -b repository-s3
+
+    - name: Set jvm heap
+      blockinfile:
+        marker: ""
+        path: /etc/elasticsearch/jvm.options.d/memory.options
+        block: |
+          -Xms{{ es_jvm_heap }}
+          -Xms{{ es_jvm_heap }}
+          -XX:+UseStringDeduplication
+
+    - name: Set log4j bugfix
+      blockinfile:
+        marker: ""
+        path: /etc/elasticsearch/jvm.options.d/log4j.options
+        block: |
+          -Dlog4j2.formatMsgNoLookups=true
+
+    - name: Set security limits
+      blockinfile:
+        marker: ""
+        path: /etc/security/limits.d/elastic.conf
+        block: |
+          elasticsearch soft memlock unlimited
+          elasticsearch hard memlock unlimited
+          elasticsearch hard nofile 65536
+          elasticsearch soft nofile 65536
+
+    - name: Create elasticsearch configuration file
+      blockinfile:
+        marker: ""
+        path: /etc/elasticsearch/elasticsearch.yml
+        block: |
+          xpack.security.enabled: {{ xpack_security_enabled }}
+          cluster.name: {{ es_cluster_name }}}
+          node.name: {{ es_node_name }}
+          path.data: {{ es_path_data }} 
+          path.logs: {{ es_path_logs }} 
+          network.host: {{ es_network_host }}
+          http.port: {{ es_http_port }} 
+          discovery.seed_hosts: {{ es_discovery_seed_hosts }} 
+          cluster.initial_master_nodes: {{ es_cluster_initial_master_nodes }} 
+          node.master: {{ es_role_master }}
+          node.data: {{ es_role_data }}
+          node.ingest: {{ es_role_ingest }}
+
+    - name: Add transport ssl configuration
+      blockinfile:
+        marker: ""
+        path: /etc/elasticsearch/elasticsearch.yml
+        block: |
+          xpack.security.transport.ssl.enabled: {{ es_transport_ssl_enabled }}
+          xpack.security.transport.ssl.verification_mode: certificate
+          xpack.security.transport.ssl.keystore.path: {{ es_transport_ssl_keystore_path }}
+          xpack.security.transport.ssl.truststore.path: {{ es_transport_ssl_keystore_path }}
+      when: es_transport_ssl_enabled
+
+    - name: Add http ssl configuration
+      blockinfile:
+        marker: ""
+        path: /etc/elasticsearch/elasticsearch.yml
+        block: |
+          xpack.security.http.ssl.enabled: {{ es_http_ssl_enabled }}
+          xpack.security.http.ssl.keystore.path: {{ es_http_ssl_keystore_path }}
+      when: es_http_ssl_enabled
+
+    - name: Remove blank lines blockinfile put it
+      lineinfile:
+        path: "{{ item }}"
+        state: absent
+        regexp: '^$'
+      with_items:
+        - "/etc/elasticsearch/jvm.options.d/memoryoptions"
+        - "/etc/elasticsearch/jvm.options.d/log4j.options"
+        - "/etc/security/limits.d/elastic.conf"
+        - "/etc/elasticsearch/elasticsearch.yml"
+
+    - name: Get list of block devices
+      command: 'lsblk -lno NAME'
+      register: results
+
+    - name: Create variable block_devices
+      set_fact:
+        block_devices: "{{ results.stdout_lines }}"
+
+    - debug:
+        var: block_devices
+
+    - name: Create list of mounted devices
+      set_fact:
+        mounted_devices: "{{ ansible_mounts|json_query('[].device') }}"
+
+    - name: Create filesystem to devices {{ es_device_path }}
+      filesystem:
+        fstype: xfs
+        dev: "{{ es_device_path }}"
+      when: es_volume_data_path not in mounted_devices
+
+    - name: Format filesystem elasticsearch {{ es_data_path }}
+      mount:
+        path: "{{ es_data_path }}"
+        src: "{{ es_device_path }}"
+        fstype: xfs
+        state: mounted
+      when: es_device_path not in mounted_devices
+
+    - name: Services elasticsarch disabled
+      service:
+        enabled: false
+        name: elasticsearch
+        state: stopped
+
+    - name: Reboot server
+      become: yes
+      become_user: root
+      reboot:
+        test_command: uptime
+      when: confirm_node_reboot
+

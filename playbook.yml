@@ -26,6 +26,8 @@
           192.168.28.74 esm1    
           192.168.28.75 esm2    
           192.168.28.76 esm3    
+          192.168.28.78 esm2    
+          192.168.28.79 esm3    
           192.168.28.77 kb      
 
     - name: Add root bashrc settings
@@ -39,7 +41,7 @@
 - hosts: es_data
   gather_facts: no
   vars: 
-    es_master_nodes: ["192.168.28.71", "192.168.28.72", "192.168.28.73"]
+    es_master_nodes: ["192.168.28.74", "192.168.28.75", "192.168.28.76"]
     es_cluster_name: "quark-search"
 
   tasks:
@@ -70,6 +72,14 @@
           node.master: true 
           node.data: true
           node.ingest: true
+          xpack.security.transport.ssl.enabled: true
+          xpack.security.transport.ssl.verification_mode: certificate
+          xpack.security.transport.ssl.keystore.path: /etc/elasticsearch/certs/{{ es_node_name }}.p12
+          xpack.security.transport.ssl.truststore.path: /etc/elasticsearch/certs/{{ es_node_name }}.p12
+          xpack.security.http.ssl.enabled: true
+          xpack.security.http.ssl.keystore.path: /etc/elasticsearch/certs/{{ es_node_name }}.p12
+          xpack.security.http.ssl.truststore.path: /etc/elasticsearch/certs/{{ es_node_name }}.p12
+
 
     - name: Start ElasticSearch Service
       become: yes
@@ -77,85 +87,85 @@
         name: elasticsearch
         state: started
 
-- hosts: es_master
-  gather_facts: no
-  vars: 
-    es_master_nodes: ["192.168.28.71", "192.168.28.72", "192.168.28.73"]
-    es_cluster_name: "quark-search"
-
-  tasks:
-    - name: Download Elastic RPM Package
-      get_url:
-        url: https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.11.1-x86_64.rpm 
-        dest: /tmp
-
-    - name: Install Elastic RPM Package
-      become: yes
-      yum:
-        name: /tmp/elasticsearch-7.11.1-x86_64.rpm 
-        state: present
-    
-    - name: Add elasticsearch configuration to master host 
-      become: true
-      blockinfile:
-        path: /etc/elasticsearch/elasticsearch.yml
-        block: |
-          cluster.name: {{ es_cluster_name }}
-          node.name: {{ es_node_name }}
-          path.data: /var/lib/elasticsearch
-          path.logs: /var/log/elasticsearch
-          network.host: {{ ansible_ssh_host }} 
-          http.port: 9200
-          discovery.seed_hosts: {{ es_master_nodes }}
-          cluster.initial_master_nodes: {{ es_master_nodes }}  
-          node.master: false
-          node.data: true
-          node.ingest: false
-
-    - name: Start ElasticSearch Service
-      become: yes
-      service:
-        name: elasticsearch
-        state: stopped
-
-- hosts: kibana
-  gather_facts: no
-
-  tasks:
-    - name: Download Kibana RPM Package
-      get_url:
-        url: https://artifacts.elastic.co/downloads/kibana/kibana-7.11.1-x86_64.rpm
-        dest: /tmp
-
-    - name: Install Kibana RPM Package
-      become: yes
-      yum:
-        name: /tmp/kibana-7.11.1-x86_64.rpm
-        state: present
-    
-    - name: Update Kibana Config (IP Address)
-      become: yes
-      lineinfile:
-        destfile: /etc/kibana/kibana.yml
-        regexp: 'server.host'
-        line: 'server.host: "0.0.0.0"'
-    
-    - name: Update Kibana Config (Kibana URL)
-      become: yes
-      lineinfile:
-        destfile: /etc/kibana/kibana.yml
-        regexp: 'elasticsearch.hosts'
-        line: 'elasticsearch.hosts: ["http://192.168.28.71:9200"]'
-    
-    - name: Start Kibana Service
-      become: yes
-      service:
-        name: kibana
-        state: started
-
-    - name: Firewall open port 5601/tcp
-      become: true
-      firewalld:
-        port: 5601/tcp
-        state: enabled
-        permanent: yes 
+#- hosts: es_master
+#  gather_facts: no
+#  vars: 
+#    es_master_nodes: ["192.168.28.71", "192.168.28.72", "192.168.28.73"]
+#    es_cluster_name: "quark-search"
+#
+#  tasks:
+#    - name: Download Elastic RPM Package
+#      get_url:
+#        url: https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.11.1-x86_64.rpm 
+#        dest: /tmp
+#
+#    - name: Install Elastic RPM Package
+#      become: yes
+#      yum:
+#        name: /tmp/elasticsearch-7.11.1-x86_64.rpm 
+#        state: present
+#    
+#    - name: Add elasticsearch configuration to master host 
+#      become: true
+#      blockinfile:
+#        path: /etc/elasticsearch/elasticsearch.yml
+#        block: |
+#          cluster.name: {{ es_cluster_name }}
+#          node.name: {{ es_node_name }}
+#          path.data: /var/lib/elasticsearch
+#          path.logs: /var/log/elasticsearch
+#          network.host: {{ ansible_ssh_host }} 
+#          http.port: 9200
+#          discovery.seed_hosts: {{ es_master_nodes }}
+#          cluster.initial_master_nodes: {{ es_master_nodes }}  
+#          node.master: false
+#          node.data: true
+#          node.ingest: false
+#
+#    - name: Start ElasticSearch Service
+#      become: yes
+#      service:
+#        name: elasticsearch
+#        state: stopped
+#
+#- hosts: kibana
+#  gather_facts: no
+#
+#  tasks:
+#    - name: Download Kibana RPM Package
+#      get_url:
+#        url: https://artifacts.elastic.co/downloads/kibana/kibana-7.11.1-x86_64.rpm
+#        dest: /tmp
+#
+#    - name: Install Kibana RPM Package
+#      become: yes
+#      yum:
+#        name: /tmp/kibana-7.11.1-x86_64.rpm
+#        state: present
+#    
+#    - name: Update Kibana Config (IP Address)
+#      become: yes
+#      lineinfile:
+#        destfile: /etc/kibana/kibana.yml
+#        regexp: 'server.host'
+#        line: 'server.host: "0.0.0.0"'
+#    
+#    - name: Update Kibana Config (Kibana URL)
+#      become: yes
+#      lineinfile:
+#        destfile: /etc/kibana/kibana.yml
+#        regexp: 'elasticsearch.hosts'
+#        line: 'elasticsearch.hosts: ["http://192.168.28.71:9200"]'
+#    
+#    - name: Start Kibana Service
+#      become: yes
+#      service:
+#        name: kibana
+#        state: started
+#
+#    - name: Firewall open port 5601/tcp
+#      become: true
+#      firewalld:
+#        port: 5601/tcp
+#        state: enabled
+#        permanent: yes 

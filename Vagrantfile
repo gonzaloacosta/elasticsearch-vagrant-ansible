@@ -40,6 +40,25 @@ Vagrant.configure("2") do |config|
     end
   end
 
+  config.vm.define "esd4" do |elk|
+    elk.vm.hostname = "esd4.test"
+    elk.vm.network:private_network, ip:"192.168.28.78"
+    elk.vm.disk :disk, name: "data", size: "2GB"
+    elk.vm.provider :virtualbox do |v|
+      v.memory = 2048
+      v.cpus = 2
+    end
+  end
+
+  config.vm.define "esd5" do |elk|
+    elk.vm.hostname = "esd5.test"
+    elk.vm.network:private_network, ip:"192.168.28.79"
+    elk.vm.provider :virtualbox do |v|
+      v.memory = 2048
+      v.cpus = 2
+    end
+  end
+
   config.vm.define "esm1" do |elk|
     elk.vm.hostname = "esm1.test"
     elk.vm.network:private_network, ip:"192.168.28.74"
