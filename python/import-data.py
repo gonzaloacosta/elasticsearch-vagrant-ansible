@@ -13,7 +13,7 @@ import json
 
 urllib3.disable_warnings()
 #countries_index = "quark-countries-2022-01-25"
-countries_index = "quark-countries-2022-01-30"
+countries_index = "countries"
 dataset_path = "../datasets/countries.json"
 es_hosts=['192.168.28.71', '192.168.28.72', '192.168.28.73']
 search_capital="Buenos Aires"
